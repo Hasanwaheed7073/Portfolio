@@ -1660,6 +1660,13 @@
 
         .word { will-change: transform; }
 
+        /* DEV VERIFY BANNER */
+        #dev-verify { position: fixed; bottom: 1rem; left: 1rem; background: #080808; border: 1px solid rgba(0,255,135,0.3); color: #00ff87; font-size: 0.6rem; font-family: monospace; padding: 0.5rem 1rem; border-radius: 4px; z-index: 99999; opacity: 0; transition: opacity 0.3s ease; letter-spacing: 0.05em; }
+        #dev-verify.show { opacity: 1; }
+
+        /* CTA HOVER GLOW */
+        #contact button:hover, #contact a[style]:hover, .contact-button:hover { box-shadow: 0 0 30px rgba(0,255,135,0.4); transform: translateY(-2px); transition: all 0.3s ease; }
+
 </style>
 </head>
 
@@ -1855,6 +1862,43 @@
         });
     }, { threshold: 0.5 });
     statNums.forEach(el => countObs.observe(el));
+
+    // SELF-TEST BANNER
+    const verify = document.createElement("div");
+    verify.id = "dev-verify";
+    document.body.appendChild(verify);
+    const checks = [];
+    const heroH = document.querySelector("#hero h1, #hero .hero-headline, #hero div[style*=font-weight]");
+    if(heroH){ const r = heroH.getBoundingClientRect(); checks.push(r.width > 100 ? "✓ Headline" : "✗ Headline"); }
+    const navEl = document.querySelector("#nav");
+    checks.push(navEl ? "✓ Nav" : "✗ Nav");
+    const sects = ["about", "services", "projects", "contact"];
+    sects.forEach(s => { checks.push(document.getElementById(s) ? `✓ ${s}` : "✗ " + s); });
+    const badges = document.querySelectorAll("#hero [style*=position\\:absolute]");
+    checks.push(badges.length >= 4 ? `✓ ${badges.length} badges` : "✗ badges");
+    const ticker = document.getElementById("ticker");
+    checks.push(ticker ? "✓ Ticker" : "✗ Ticker");
+    const statsBar = document.getElementById("stats-bar");
+    checks.push(statsBar ? "✓ Stats" : "✗ Stats");
+    verify.innerText = checks.join(" | ");
+    verify.classList.add("show");
+    setTimeout(() => verify.classList.remove("show"), 5000);
+
+    // SCROLL-ACTIVE NAV
+    const navLinks = document.querySelectorAll("#nav a[href^=\"#\"]");
+    const sectionEls = document.querySelectorAll("section[id]");
+    window.addEventListener("scroll", () => {
+        let current = "";
+        sectionEls.forEach(s => {
+            if(window.scrollY >= s.offsetTop - 120) current = s.id;
+        });
+        navLinks.forEach(a => {
+            a.style.color = a.getAttribute("href") === "#" + current ? "#00ff87" : "#ffffff";
+        });
+        const scrolled = window.scrollY > 50;
+        document.getElementById("nav").style.background = scrolled ? "rgba(8,8,8,0.95)" : "transparent";
+        document.getElementById("nav").style.backdropFilter = scrolled ? "blur(20px)" : "none";
+    });
 </script>
 
 </body>
